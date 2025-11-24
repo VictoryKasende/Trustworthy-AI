@@ -1,0 +1,169 @@
+# Configuration de la confidentialité et sécurité
+privacy:
+  # Differential Privacy
+  differential_privacy:
+    enabled: true
+    mechanism: "gaussian"  # "gaussian", "laplace"
+    
+    # Paramètres du bruit
+    epsilon: 1.0  # Budget de confidentialité
+    delta: 1e-5   # Probabilité de fuite
+    sensitivity: 1.0  # Sensibilité des requêtes
+    
+    # Clipping des gradients
+    gradient_clipping:
+      enabled: true
+      norm_type: 2  # L2 norm
+      max_norm: 1.0
+      
+    # Compteur de confidentialité
+    privacy_accounting:
+      enabled: true
+      track_per_client: true
+      
+  # Secure Multi-party Computation
+  secure_computation:
+    enabled: false
+    protocol: "BGW"  # "BGW", "GMW"
+    threshold: 2  # Seuil pour 3 parties
+    
+  # Chiffrement homomorphe
+  homomorphic_encryption:
+    enabled: false
+    scheme: "CKKS"  # "CKKS", "BFV", "BGV"
+    key_size: 2048
+    scaling_factor: 40
+    
+  # Chiffrement des communications
+  communication_encryption:
+    enabled: true
+    protocol: "TLS"
+    version: "1.3"
+    cipher_suites:
+      - "TLS_AES_256_GCM_SHA384"
+      - "TLS_CHACHA20_POLY1305_SHA256"
+
+# Audit et conformité
+audit:
+  # Logging des accès
+  access_logging:
+    enabled: true
+    log_level: "detailed"  # "basic", "detailed", "full"
+    include_data_access: false  # Ne pas logger les données sensibles
+    
+  # Traçabilité des modèles
+  model_provenance:
+    enabled: true
+    track_data_lineage: true
+    version_control: true
+    
+  # Métriques de confidentialité
+  privacy_metrics:
+    enabled: true
+    compute_membership_inference: true
+    compute_attribute_inference: true
+    compute_model_inversion: true
+
+# Protection contre les attaques
+attack_defense:
+  # Détection d'anomalies
+  anomaly_detection:
+    enabled: true
+    threshold: 2.0  # Nombre d'écarts-types
+    
+  # Protection contre l'empoisonnement
+  poisoning_defense:
+    enabled: true
+    method: "byzantine_robust"  # "median", "trimmed_mean", "byzantine_robust"
+    
+  # Défense contre l'inversion de modèle
+  model_inversion_defense:
+    enabled: true
+    add_noise_to_outputs: true
+    noise_scale: 0.1
+
+# Anonymisation des données
+anonymization:
+  # K-anonymity
+  k_anonymity:
+    enabled: false
+    k_value: 5
+    
+  # L-diversity
+  l_diversity:
+    enabled: false
+    l_value: 2
+    
+  # T-closeness
+  t_closeness:
+    enabled: false
+    t_threshold: 0.2
+    
+  # Suppression des identifiants
+  identifier_removal:
+    enabled: true
+    remove_metadata: true
+    sanitize_filenames: true
+
+# Évaluation de la vie privée
+privacy_evaluation:
+  # Tests d'attaque par inférence
+  membership_inference_test:
+    enabled: true
+    attack_model: "shadow_model"
+    num_shadow_models: 10
+    
+  # Tests d'attribut inference
+  attribute_inference_test:
+    enabled: true
+    target_attributes: ["member_id"]
+    
+  # Tests de reconstruction
+  reconstruction_test:
+    enabled: true
+    method: "gradient_based"
+    
+  # Métriques de protection
+  protection_metrics:
+    privacy_loss: true
+    utility_preservation: true
+    robustness_score: true
+
+# Configuration légale et éthique
+compliance:
+  # RGPD
+  gdpr:
+    data_minimization: true
+    purpose_limitation: true
+    storage_limitation: true
+    consent_management: true
+    
+  # Autres réglementations
+  regulations:
+    - "CCPA"  # California Consumer Privacy Act
+    - "PIPEDA"  # Personal Information Protection
+    
+  # Principes éthiques
+  ethical_principles:
+    fairness: true
+    transparency: true
+    accountability: true
+    human_oversight: true
+
+# Gestion des clés et secrets
+key_management:
+  # Stockage sécurisé des clés
+  key_storage:
+    method: "file"  # "file", "hsm", "vault"
+    encryption_at_rest: true
+    
+  # Rotation des clés
+  key_rotation:
+    enabled: true
+    rotation_period: "30d"  # 30 jours
+    
+  # Partage de secrets
+  secret_sharing:
+    enabled: false
+    threshold: 2
+    num_shares: 3
