@@ -1,103 +1,40 @@
-# Configuration de l'apprentissage fédéré
+# Configuration pour l'Apprentissage Fédéré
+# Projet Trustworthy AI - Classification Faciale
+
 federated_learning:
-  # Paramètres généraux
+  # Configuration générale
   num_clients: 3
-  num_rounds: 50
-  min_clients_per_round: 3  # Tous les clients participent
+  num_rounds: 50  # Augmenté de 10 à 50 pour meilleure convergence
+  
+  # Configuration des clients
+  clients:
+    local_epochs: 5  # Augmenté de 3 à 5 pour mieux apprendre localement
+    local_batch_size: 16
+    local_learning_rate: 0.0005  # Réduit de 0.001 à 0.0005 pour convergence stable
   
   # Stratégie d'agrégation
   aggregation:
-    strategy: "FedAvg"  # "FedAvg", "FedProx", "FedOpt"
-    
-    # Paramètres FedAvg
-    fed_avg:
-      client_learning_rate: 0.01
-      server_learning_rate: 1.0
-      
-    # Paramètres FedProx (si utilisé)
-    fed_prox:
-      proximal_mu: 0.1
-      
-  # Configuration des clients
-  clients:
-    local_epochs: 5
-    local_batch_size: 16
-    local_learning_rate: 0.01
-    
-    # Échantillonnage des clients
-    sampling_strategy: "all"  # "all", "random", "weighted"
-    sampling_fraction: 1.0
-    
-  # Sécurité et confidentialité
-  privacy:
-    # Differential Privacy
-    differential_privacy:
-      enabled: true
-      noise_multiplier: 1.1
-      l2_norm_clip: 1.0
-      
-    # Secure Aggregation
-    secure_aggregation:
-      enabled: true
-      minimum_clients: 3
-      
-    # Chiffrement homomorphe
-    homomorphic_encryption:
-      enabled: false
-      key_size: 2048
-
-  # Critères d'arrêt
-  convergence:
-    target_accuracy: 0.95
-    patience: 10
-    min_improvement: 0.001
-    
-  # Monitoring
-  metrics:
-    track_client_metrics: true
-    save_round_metrics: true
-    
-    evaluation_frequency: 5  # Évaluer tous les 5 rounds
-    
-# Configuration du serveur fédéré
-server:
-  host: "localhost"
-  port: 8080
+    strategy: "fedavg"  # FedAvg (Federated Averaging)
+    weighted: true  # Pondération par nombre d'échantillons
   
-  # Stockage des modèles
-  model_storage:
-    path: "federated_models/"
-    save_frequency: 10
-    keep_history: true
-    
-  # Logging
-  logging:
-    level: "INFO"
-    file: "federated_server.log"
-    
-# Configuration des clients
-client_config:
-  # Client 1 (Member 1)
-  client_1:
-    member_name: "member1"
-    data_path: "data/federated/client_1.npz"
-    local_model_path: "models/client_1_model.h5"
-    
-  # Client 2 (Member 2)  
-  client_2:
-    member_name: "member2"
-    data_path: "data/federated/client_2.npz"
-    local_model_path: "models/client_2_model.h5"
-    
-  # Client 3 (Member 3)
-  client_3:
-    member_name: "member3" 
-    data_path: "data/federated/client_3.npz"
-    local_model_path: "models/client_3_model.h5"
+  # Configuration du modèle
+  model:
+    input_shape: [64, 64, 3]
+    num_classes: 3
+    architecture: "custom_cnn"
 
-# Simulation des pannes de réseau
-network_simulation:
-  enabled: false
-  dropout_rate: 0.1  # 10% de chance de panne client
-  latency_simulation: false
-  bandwidth_limit: null
+# Privacy settings (pour Notebook 06)
+privacy:
+  differential_privacy:
+    enabled: false
+    noise_multiplier: 1.0
+    l2_norm_clip: 1.0
+    
+  secure_aggregation:
+    enabled: false
+
+# Logging
+logging:
+  save_round_metrics: true
+  save_client_metrics: true
+  tensorboard: false

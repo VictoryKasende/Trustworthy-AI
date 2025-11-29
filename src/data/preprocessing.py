@@ -166,14 +166,14 @@ class ImagePreprocessor:
         
         # Sauvegarder les métadonnées
         metadata = {
-            'target_size': self.target_size,
+            'target_size': list(self.target_size),  # Convertir tuple en list
             'member_names': self.member_names,
             'classes': self.label_encoder.classes_.tolist(),
             'num_classes': len(self.label_encoder.classes_)
         }
         
         with open(os.path.join(output_path, 'metadata.yaml'), 'w') as f:
-            yaml.dump(metadata, f)
+            yaml.dump(metadata, f, default_flow_style=False)
 
 
 class DataAugmentation:

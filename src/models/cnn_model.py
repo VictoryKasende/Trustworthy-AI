@@ -32,44 +32,47 @@ class FaceClassificationCNN:
         
     def build_custom_model(self) -> tf.keras.Model:
         """
-        Construit un modèle CNN personnalisé
+        Construit un modèle CNN simple et robuste contre le surapprentissage
+        Architecture légère optimisée pour petits datasets
         
         Returns:
             Modèle Keras compilé
         """
+        weight_decay = 5e-4  # Régularisation plus forte
+        
         model = models.Sequential([
-            # Bloc de convolution 1
-            layers.Conv2D(32, (3, 3), activation='relu', input_shape=self.input_shape),
+            # Bloc de convolution 1 - Simple
+            layers.Conv2D(16, (3, 3), padding='same',
+                         kernel_regularizer=tf.keras.regularizers.l2(weight_decay),
+                         input_shape=self.input_shape),
             layers.BatchNormalization(),
+            layers.Activation('relu'),
             layers.MaxPooling2D((2, 2)),
-            layers.Dropout(0.25),
+            layers.Dropout(0.3),
             
             # Bloc de convolution 2
-            layers.Conv2D(64, (3, 3), activation='relu'),
+            layers.Conv2D(32, (3, 3), padding='same',
+                         kernel_regularizer=tf.keras.regularizers.l2(weight_decay)),
             layers.BatchNormalization(),
+            layers.Activation('relu'),
             layers.MaxPooling2D((2, 2)),
-            layers.Dropout(0.25),
+            layers.Dropout(0.3),
             
             # Bloc de convolution 3
-            layers.Conv2D(128, (3, 3), activation='relu'),
+            layers.Conv2D(64, (3, 3), padding='same',
+                         kernel_regularizer=tf.keras.regularizers.l2(weight_decay)),
             layers.BatchNormalization(),
+            layers.Activation('relu'),
             layers.MaxPooling2D((2, 2)),
-            layers.Dropout(0.25),
+            layers.Dropout(0.4),
             
-            # Bloc de convolution 4
-            layers.Conv2D(256, (3, 3), activation='relu'),
-            layers.BatchNormalization(),
-            layers.MaxPooling2D((2, 2)),
-            layers.Dropout(0.25),
+            # Global Average Pooling (meilleur que Flatten pour éviter surapprentissage)
+            layers.GlobalAveragePooling2D(),
             
-            # Couches denses
-            layers.Flatten(),
-            layers.Dense(512, activation='relu'),
+            # Couche dense simple
+            layers.Dense(64, kernel_regularizer=tf.keras.regularizers.l2(weight_decay)),
             layers.BatchNormalization(),
-            layers.Dropout(0.5),
-            
-            layers.Dense(256, activation='relu'),
-            layers.BatchNormalization(),
+            layers.Activation('relu'),
             layers.Dropout(0.5),
             
             # Couche de sortie
@@ -143,11 +146,15 @@ class FaceClassificationCNN:
         else:
             raise ValueError(f"Type de modèle non supporté: {self.model_type}")
         
-        # Compiler le modèle
+        # Compiler le modèle avec Adam et learning rate très bas
         model.compile(
-            optimizer=optimizers.Adam(learning_rate=0.001),
+            optimizer=optimizers.Adam(learning_rate=0.0001),  # LR très bas
             loss='categorical_crossentropy',
-            metrics=['accuracy', 'precision', 'recall']
+            metrics=[
+                'accuracy',
+                tf.keras.metrics.Precision(name='precision'),
+                tf.keras.metrics.Recall(name='recall')
+            ]
         )
         
         self.model = model
@@ -164,12 +171,12 @@ class FaceClassificationCNN:
             Liste des callbacks
         """
         callbacks_list = [
-            # Sauvegarde du meilleur modèle
+            # Sauvegarde UNIQUEMENT des poids (économie mémoire MASSIVE)
             callbacks.ModelCheckpoint(
                 filepath=model_path,
                 monitor='val_accuracy',
                 save_best_only=True,
-                save_weights_only=False,
+                save_weights_only=True,  # ✅ SEULEMENT les poids (évite allocations GB)
                 mode='max',
                 verbose=1
             ),
@@ -345,7 +352,11 @@ class FaceClassificationCNN:
         self.model.compile(
             optimizer=optimizers.Adam(learning_rate=learning_rate),
             loss='categorical_crossentropy',
-            metrics=['accuracy', 'precision', 'recall']
+            metrics=[
+                'accuracy',
+                tf.keras.metrics.Precision(name='precision'),
+                tf.keras.metrics.Recall(name='recall')
+            ]
         )
         
         # Fine-tuning

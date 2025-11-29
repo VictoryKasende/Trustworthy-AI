@@ -1,14 +1,14 @@
 # Configuration du modèle de classification faciale
 model:
   # Architecture du modèle
-  input_shape: [224, 224, 3]
+  input_shape: [64, 64, 3]  # Réduit pour économiser la RAM
   num_classes: 3
   model_type: "custom"  # "custom", "mobilenet", "resnet"
   
   # Compilation
   optimizer:
     name: "adam"
-    learning_rate: 0.001
+    learning_rate: 0.0001  # LR très bas pour éviter surapprentissage
     beta_1: 0.9
     beta_2: 0.999
     
@@ -21,8 +21,8 @@ model:
 
 # Configuration d'entraînement
 training:
-  epochs: 100
-  batch_size: 32
+  epochs: 50  # Plus d'epochs pour mieux converger
+  batch_size: 16  # Batch plus petit pour meilleure généralisation
   validation_split: 0.2
   
   # Callbacks
